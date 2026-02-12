@@ -22,6 +22,10 @@ public class HomePage {
     @FindBy(css = "input[placeholder='What do you want to learn?']")
     WebElement searchBox;
 
+    @FindBy(xpath = "//a[text() = 'Language Learning']")
+    WebElement langaugeLearning;
+
+
     // UNBREAKABLE SEARCH METHOD
     public void searchCourse(String courseName) throws InterruptedException {
         // 1. Try normal interaction first
