@@ -2,32 +2,40 @@ package stepDefinitions;
 
 import io.cucumber.java.en.*;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
 import pageObjects.HomePage;
+import pageObjects.LearningPage;
+import support.DriverManager;
 
 public class Steps {
     WebDriver driver;
     HomePage homePage;
+    LearningPage learningPage;
+    String URL = "https://www.coursera.org/";
 
     // Web Development
     @Given("I am on the Coursera homepage")
     public void i_am_on_the_coursera_homepage() {
         // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+        driver = DriverManager.get();
+        homePage = new HomePage(driver);
+        homePage.goToUrl(URL);
+
     }
     @When("I search for {string} courses")
-    public void i_search_for_courses(String string) {
+    public void i_search_for_courses(String string) throws InterruptedException {
         // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+        homePage.searchCourse("Web Developement");
     }
     @When("I filter courses by {string} level")
-    public void i_filter_courses_by_level(String string) {
+    public void i_filter_courses_by_level(String level) throws InterruptedException {
         // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+        homePage.applyFilters(level);
     }
     @When("I filter courses by {string} language")
-    public void i_filter_courses_by_language(String string) {
+    public void i_filter_courses_by_language(String language) throws InterruptedException {
         // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+        homePage.applyFilters(language);
     }
     @Then("I should see the first two courses displayed")
     public void i_should_see_the_first_two_courses_displayed() {
@@ -51,11 +59,11 @@ public class Steps {
     }
 
     // Language
-
-    @When("I navigate to {string} category")
-    public void i_navigate_to_category(String string) {
+    @When("I navigate to Language Learning category")
+    public void i_navigate_to_category() {
         // Write code here that turns the phrase above into concrete actions
-        throw new io.cucumber.java.PendingException();
+        homePage.navigateBack();
+        homePage.clickLanguageLearning();
     }
 
     @Then("I should extract all available languages")

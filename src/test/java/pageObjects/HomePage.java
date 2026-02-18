@@ -5,12 +5,15 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import utilities.WaitHelper;
+
 import java.time.Duration;
 import java.util.List;
 
 public class HomePage {
     WebDriver driver;
     WebDriverWait wait;
+    WaitHelper waitHelper;
 
     public HomePage(WebDriver driver) {
         this.driver = driver;
@@ -25,7 +28,13 @@ public class HomePage {
     @FindBy(xpath = "//a[text() = 'Language Learning']")
     WebElement langaugeLearning;
 
+    @FindBy(linkText = "For Campus")
+    WebElement forCampus;
 
+
+    public void goToUrl(String url){
+        driver.get(url);
+    }
     // UNBREAKABLE SEARCH METHOD
     public void searchCourse(String courseName) throws InterruptedException {
         // 1. Try normal interaction first
@@ -53,21 +62,23 @@ public class HomePage {
         Thread.sleep(3000); // Wait for results to load
     }
 
-    public void applyFilters() throws InterruptedException {
+    public void applyFilters(String data) throws InterruptedException {
         // Scroll down to ensure sidebar is loaded
         ((JavascriptExecutor) driver).executeScript("window.scrollBy(0, 300)");
         Thread.sleep(2000);
 
         // Click Beginner
         System.out.println("Scanning for Beginner filter...");
-        clickFilterByScanning("Beginner");
+        if(data.equalsIgnoreCase("Beginner")){
+            clickFilterByScanning("Beginner");
+        }
 
         System.out.println("Waiting for refresh...");
         Thread.sleep(3000);
 
         // Click English
         System.out.println("Scanning for English filter...");
-        clickFilterByScanning("English");
+        if(data.equalsIgnoreCase("English")) clickFilterByScanning("English");
     }
 
     public void clickFilterByScanning(String filterText) {
@@ -108,5 +119,14 @@ public class HomePage {
             // We don't throw an exception here because sometimes "English" is already selected by default
             // throwing an exception stops the whole test, printing allows us to continue.
         }
+    }
+
+    public void clickLanguageLearning(){
+        waitHelper.waitForElement(langaugeLearning, 10);
+        langaugeLearning.click();
+    }
+
+    public void navigateBack(){
+        driver.navigate().back();
     }
 }

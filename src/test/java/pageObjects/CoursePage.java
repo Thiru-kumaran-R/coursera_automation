@@ -16,7 +16,16 @@ public class CoursePage {
     }
 
     // Web Elements
-    
+    @FindBy(xpath = "//button[@data-testid = 'filter-dropdown-productDifficultyLevel']")
+    WebElement levelButton;
+
+    @FindBy(xpath = "//button[@data-testid = 'filter-dropdown-language']")
+    WebElement languageButton;
+
+//    @FindBy()
+
+
+
 
 
 }
