@@ -3,8 +3,6 @@ Feature: Validate Ready to Transform form under For Enterprise
   I want to fill the Ready to Transform form
   So that I can verify error messages for invalid inputs
 
-  Background:
-    Given I am on the Coursera homepage
 
   Scenario: Capture error message for invalid email input
     When I navigate to "For Enterprise"

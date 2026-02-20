@@ -1,45 +1,59 @@
+// stepDefinitions/Steps.java
 package stepDefinitions;
 
 import io.cucumber.java.en.*;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
 import pageObjects.HomePage;
 import pageObjects.CoursePage;
+import support.DriverManager;
 
 public class Steps {
-    WebDriver driver;
-    HomePage homePage;
-    CoursePage coursePage;
 
-    // Web Development Scenarios
+    private WebDriver driver;
+    private HomePage homePage;
+    private CoursePage coursePage;
+
+
+    public Steps() {
+        if (DriverManager.isPresent()) {
+            this.driver = DriverManager.get();
+        }
+    }
+
+    // --- Web Development Scenarios ---
+
     @Given("I am on the Coursera homepage")
     public void i_am_on_the_coursera_homepage() {
-        // Simple driver initialization
-        driver = new ChromeDriver();
+        ensureDriver();
         homePage = new HomePage(driver);
-        coursePage = new CoursePage(driver);
-
-        homePage.launchCoursera();
+//        homePage.launchCoursera();
     }
 
     @When("I search for {string} courses")
     public void i_search_for_courses(String courseName) {
+        ensureDriver();
+        ensureHomePage();
         homePage.searchForCourse(courseName);
     }
 
     @When("I filter courses by {string} level")
     public void i_filter_courses_by_level(String level) {
+        ensureDriver();
+        ensureCoursePage();
         coursePage.filterByLevel(level);
     }
 
     @When("I filter courses by {string} language")
     public void i_filter_courses_by_language(String language) {
+        ensureDriver();
+        ensureCoursePage();
         coursePage.filterByLanguage(language);
     }
 
     @Then("I should see the first two courses displayed")
     public void i_should_see_the_first_two_courses_displayed() {
-        // This method will handle the extraction and printing as per your logic
+        ensureDriver();
+        ensureCoursePage();
         coursePage.extractFirstTwoCourses();
     }
 
@@ -56,12 +70,31 @@ public class Steps {
     @Then("each course should show the rating")
     public void each_course_should_show_the_rating() {
         System.out.println("Ratings extracted successfully.");
-        // Close browser after the scenario finishes
-        if (driver != null) {
-            driver.quit();
+        // Do NOT quit here; Hooks @After will close the browser via DriverManager.
+    }
+
+    // --- Helpers ---
+
+    private void ensureDriver() {
+        if (driver == null) {
+            if (!DriverManager.isPresent()) {
+                throw new IllegalStateException(
+                        "WebDriver is not available. Ensure Hooks @Before sets DriverManager.set(driver) before steps run."
+                );
+            }
+            driver = DriverManager.get();
         }
     }
 
-    // Note: You will need to implement the 'Language' and 'Enterprise'
-    // methods in your PageObjects and call them here similarly.
+    private void ensureHomePage() {
+        if (homePage == null) {
+            homePage = new HomePage(driver);
+        }
+    }
+
+    private void ensureCoursePage() {
+        if (coursePage == null) {
+            coursePage = new CoursePage(driver);
+        }
+    }
 }

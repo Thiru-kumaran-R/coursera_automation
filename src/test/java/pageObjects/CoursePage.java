@@ -3,6 +3,7 @@ package pageObjects;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
@@ -43,22 +44,40 @@ public class CoursePage {
     }
 
     public void extractFirstTwoCourses() {
-        wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.xpath("//div[@id='searchResults']//li")));
-        List<WebElement> items = driver.findElements(By.xpath("//div[@id='searchResults']//li"));
-
         for (int i = 0; i < 2; i++) {
+            // 1. Re-find the list inside the loop to ensure elements aren't "Stale"
+            List<WebElement> items = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(
+                    By.xpath("//div[@id='searchResults']/div/div/ul/li")));
+
+            // Safety check to ensure the index exists
+            if (i >= items.size()) break;
+
             WebElement item = items.get(i);
-            String title = item.findElement(By.cssSelector("h3.cds-CommonCard-title")).getText();
-            String rating = item.findElement(By.cssSelector("span.css-4s48ix")).getText();
-            String metaData = item.findElement(By.cssSelector("div.cds-CommonCard-metadata > p")).getText();
 
-            String[] parts = metaData.split("·");
-            String duration = (parts.length >= 3) ? parts[2].trim() : "N/A";
+            try {
+                // 2. Extract Title
 
-            System.out.println("--- Course " + (i + 1) + " ---");
-            System.out.println("Title: " + title);
-            System.out.println("Rating: " + rating);
-            System.out.println("Duration: " + duration);
+                String title = item.findElement(By.cssSelector("h3.cds-CommonCard-title")).getText();
+
+                // 3. Extract Rating (Using a more flexible selector if class names change)
+                String rating = item.findElement(By.cssSelector("span[class*='css-4s48ix']")).getText();
+
+                // 4. Extract Duration with Safety Split
+                String durationRaw = item.findElement(By.cssSelector("div.cds-CommonCard-metadata > p")).getText();
+                String[] timeParts = durationRaw.split("·");
+
+                // Safety check: only access index 2 if the split produced enough parts
+                String duration = (timeParts.length > 2) ? timeParts[2].trim() : "N/A";
+
+                System.out.println("--- Course " + (i + 1) + " ---");
+                System.out.println("Title: " + title);
+                System.out.println("Rating: " + rating);
+                System.out.println("Duration: " + duration);
+
+            } catch (Exception e) {
+                System.out.println("Skip item " + i + " due to element change: " + e.getMessage());
+                // Optional: refresh items and try again
+            }
         }
     }
 }

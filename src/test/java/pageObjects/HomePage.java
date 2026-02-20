@@ -1,37 +1,38 @@
 package pageObjects;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.*;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
 import java.time.Duration;
+import org.openqa.selenium.support.ui.*;
 
 public class HomePage {
-    WebDriver driver;
-    WebDriverWait wait;
+    private final WebDriver driver;
+    private final WebDriverWait wait;
 
-    // Constructor to initialize driver from Step Definition
+    @FindBy(id = "search-autocomplete-input")
+    private WebElement searchBox;
+
     public HomePage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+        this.wait  = new WebDriverWait(driver, Duration.ofSeconds(15));
+        PageFactory.initElements(driver, this);
     }
 
     public void launchCoursera() {
-        driver.get("https://www.coursera.org");
-        driver.manage().window().maximize();
+        driver.get("https://www.coursera.org/");
+        wait.until(d -> ((JavascriptExecutor) d).executeScript("return document.readyState").equals("complete"));
+        // Optionally dismiss cookie banner here
     }
 
     public void searchForCourse(String courseName) {
-        try {
-            WebElement searchBox = wait.until(ExpectedConditions.visibilityOfElementLocated(
-                    By.cssSelector("input[placeholder='What do you want to learn?']")));
-            searchBox.clear();
-            searchBox.sendKeys(courseName);
-            searchBox.sendKeys(Keys.ENTER);
-        } catch (Exception e) {
-            System.out.println("Error finding search box: " + e.getMessage());
-        }
+        WebElement box = wait.until(ExpectedConditions.elementToBeClickable(searchBox));
+        box.clear();
+        box.sendKeys(courseName);
+        box.sendKeys(Keys.ENTER);
+        wait.until(ExpectedConditions.or(
+                ExpectedConditions.urlContains("search"),
+                ExpectedConditions.presenceOfElementLocated(By.cssSelector("[data-e2e='search-results']"))
+        ));
     }
 }
