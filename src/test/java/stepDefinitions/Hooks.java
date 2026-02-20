@@ -16,13 +16,6 @@ public class Hooks {
 
     @BeforeAll
     public static void beforeAll() {
-//        ChromeOptions options = new ChromeOptions();
-
-//        boolean headless = Boolean.parseBoolean(System.getProperty("headless", "false"));
-//        if (headless) {
-//            options.addArguments("--headless=new");
-//        }
-//        options.addArguments("--disable-gpu", "--no-sandbox", "--disable-dev-shm-usage");
 
         sharedDriver = new ChromeDriver();
         sharedDriver.get("https://www.coursera.org/");

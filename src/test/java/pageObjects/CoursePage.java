@@ -3,10 +3,12 @@ package pageObjects;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import utilities.ExcelUtils; // Import Excel Util
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CoursePage {
@@ -16,6 +18,7 @@ public class CoursePage {
     public CoursePage(WebDriver driver) {
         this.driver = driver;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+        PageFactory.initElements(driver, this);
     }
 
     public void filterByLevel(String levelName) {
@@ -42,42 +45,42 @@ public class CoursePage {
             System.out.println("Error filtering language: " + e.getMessage());
         }
     }
+    public void extractAndSaveFirstTwoCourses() {
+        List<String> courseTitles = new ArrayList<>();
+        List<String> courseRatings = new ArrayList<>();
+        List<String> courseDurations = new ArrayList<>();
 
-    public void extractFirstTwoCourses() {
         for (int i = 0; i < 2; i++) {
-            // 1. Re-find the list inside the loop to ensure elements aren't "Stale"
-            List<WebElement> items = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(
-                    By.xpath("//div[@id='searchResults']/div/div/ul/li")));
-
-            // Safety check to ensure the index exists
-            if (i >= items.size()) break;
-
-            WebElement item = items.get(i);
-
             try {
-                // 2. Extract Title
+                // List refresh to avoid StaleElementReferenceException
+                List<WebElement> items = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(
+                        By.xpath("//div[@id='searchResults']/div/div/ul/li")));
 
+                if (i >= items.size()) break;
+                WebElement item = items.get(i);
+
+                // Data Extraction
                 String title = item.findElement(By.cssSelector("h3.cds-CommonCard-title")).getText();
-
-                // 3. Extract Rating (Using a more flexible selector if class names change)
                 String rating = item.findElement(By.cssSelector("span[class*='css-4s48ix']")).getText();
-
-                // 4. Extract Duration with Safety Split
                 String durationRaw = item.findElement(By.cssSelector("div.cds-CommonCard-metadata > p")).getText();
-                String[] timeParts = durationRaw.split("·");
 
-                // Safety check: only access index 2 if the split produced enough parts
+                String[] timeParts = durationRaw.split("·");
                 String duration = (timeParts.length > 2) ? timeParts[2].trim() : "N/A";
 
-                System.out.println("--- Course " + (i + 1) + " ---");
-                System.out.println("Title: " + title);
-                System.out.println("Rating: " + rating);
-                System.out.println("Duration: " + duration);
+                // List mein add karna
+                courseTitles.add(title);
+                courseRatings.add(rating);
+                courseDurations.add(duration);
+
+                System.out.println("Extracted: " + title);
 
             } catch (Exception e) {
-                System.out.println("Skip item " + i + " due to element change: " + e.getMessage());
-                // Optional: refresh items and try again
+                System.out.println("Error at item " + i + ": " + e.getMessage());
             }
+        }
+
+         if (!courseTitles.isEmpty()) {
+            ExcelUtils.writeCourseData(courseTitles, courseRatings, courseDurations);
         }
     }
 }

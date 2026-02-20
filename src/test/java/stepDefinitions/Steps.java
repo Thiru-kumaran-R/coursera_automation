@@ -1,4 +1,3 @@
-// stepDefinitions/Steps.java
 package stepDefinitions;
 
 import io.cucumber.java.en.*;
@@ -13,20 +12,17 @@ public class Steps {
     private HomePage homePage;
     private CoursePage coursePage;
 
-
     public Steps() {
         if (DriverManager.isPresent()) {
             this.driver = DriverManager.get();
         }
     }
 
-    // --- Web Development Scenarios ---
-
     @Given("I am on the Coursera homepage")
     public void i_am_on_the_coursera_homepage() {
         ensureDriver();
         homePage = new HomePage(driver);
-//        homePage.launchCoursera();
+        homePage.launchCoursera(); // Uncommented to ensure navigation happens
     }
 
     @When("I search for {string} courses")
@@ -54,26 +50,27 @@ public class Steps {
     public void i_should_see_the_first_two_courses_displayed() {
         ensureDriver();
         ensureCoursePage();
-        coursePage.extractFirstTwoCourses();
+        // This method now extracts data AND saves it to Excel
+        coursePage.extractAndSaveFirstTwoCourses();
     }
 
     @Then("each course should show the name")
     public void each_course_should_show_the_name() {
-        System.out.println("Course names extracted successfully.");
+        // Log message to confirm extraction process
+        System.out.println("Verification: Course names have been processed.");
     }
 
     @Then("each course should show the total learning hours")
     public void each_course_should_show_the_total_learning_hours() {
-        System.out.println("Learning hours extracted successfully.");
+        System.out.println("Verification: Learning hours have been processed.");
     }
 
     @Then("each course should show the rating")
     public void each_course_should_show_the_rating() {
-        System.out.println("Ratings extracted successfully.");
-        // Do NOT quit here; Hooks @After will close the browser via DriverManager.
+        System.out.println("Verification: Ratings have been processed and saved to Excel.");
     }
 
-    // --- Helpers ---
+    // --- Private Helper Methods ---
 
     private void ensureDriver() {
         if (driver == null) {
